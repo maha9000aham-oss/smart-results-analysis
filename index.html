@@ -14,6 +14,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.js"></script>
+
   <style>
 
     :root{
@@ -1250,7 +1252,7 @@
 
         <div class="mini-chip">التصميم: رسمي ذكي</div>
 
-        <div class="mini-chip">الملفات المدعومة: Excel / CSV</div>
+        <div class="mini-chip">الملفات المدعومة: Excel / CSV / PDF</div>
 
       </div>
 
@@ -1348,9 +1350,9 @@
 
             <p>
 
-              يدعم النظام ملفات <strong>Excel</strong> و<strong>CSV</strong>.
+              يدعم النظام ملفات <strong>Excel</strong> و<strong>CSV</strong> و<strong>PDF</strong>.
 
-              يفضّل أن يحتوي الملف على أعمدة مثل: اسم الطالب، رقم الطالب، الفصل، الدرجة أو المجموع.
+              يفضّل أن يحتوي الملف على أعمدة أو نصوص تشمل: اسم الطالب، رقم الطالب، الفصل، والدرجة أو المجموع.
 
             </p>
 
@@ -1362,7 +1364,7 @@
 
             </div>
 
-            <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" />
+            <input id="fileInput" type="file" accept=".xlsx,.xls,.csv,.pdf" />
 
           </div>
 
@@ -1386,7 +1388,7 @@
 
             <p>
 
-              يتم فحص أسماء الأعمدة تلقائيًا، ثم استخراج اسم الطالبة والفصل والدرجة النهائية. بعد ذلك يبدأ التحليل والرسوم والتقرير التنفيذي فورًا.
+              يتم فحص أسماء الأعمدة تلقائيًا في Excel وCSV، أما PDF فيتم استخراج النص ومحاولة تحويله إلى سجلات تحليلية مباشرة.
 
             </p>
 
@@ -1398,7 +1400,7 @@
 
             <p>
 
-              إذا كان الملف يحتوي على أكثر من ورقة، ستقرأ المنصة أول ورقة فقط. ولأفضل نتيجة اجعلي الصف الأول عناوين للأعمدة.
+              أفضل دقة تكون في ملفات Excel وCSV. أما PDF فيعمل جيدًا عندما يكون النص واضحًا وغير مصور على شكل صورة فقط.
 
             </p>
 
@@ -1778,6 +1780,8 @@
 
   <script>
 
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.js";
+
     let currentData = [];
 
     let charts = {
@@ -2024,59 +2028,225 @@
 
     }
 
-    function handleFile(file){
+    async function handleFile(file){
 
       const name = file.name.toLowerCase();
 
-      if(name.endsWith(".csv")){
+      try{
 
-        const reader = new FileReader();
+        if(name.endsWith(".csv")){
 
-        reader.onload = e => {
+          const reader = new FileReader();
 
-          try{
+          reader.onload = e => {
 
-            const workbook = XLSX.read(e.target.result, {type:"string"});
+            try{
 
-            processWorkbook(workbook, file.name);
+              const workbook = XLSX.read(e.target.result, {type:"string"});
 
-          }catch(error){
+              processWorkbook(workbook, file.name);
 
-            alert("تعذر قراءة ملف CSV.");
+            }catch(error){
+
+              alert("تعذر قراءة ملف CSV.");
+
+            }
+
+          };
+
+          reader.readAsText(file, "utf-8");
+
+          return;
+
+        }
+
+        if(name.endsWith(".xlsx") || name.endsWith(".xls")){
+
+          const reader = new FileReader();
+
+          reader.onload = e => {
+
+            try{
+
+              const workbook = XLSX.read(e.target.result, {type:"array"});
+
+              processWorkbook(workbook, file.name);
+
+            }catch(error){
+
+              alert("تعذر قراءة ملف Excel.");
+
+            }
+
+          };
+
+          reader.readAsArrayBuffer(file);
+
+          return;
+
+        }
+
+        if(name.endsWith(".pdf")){
+
+          updateStatus(`جارٍ قراءة ملف PDF: ${file.name}`,"● تتم معالجة PDF");
+
+          const parsed = await processPDF(file);
+
+          if(!parsed.length){
+
+            alert("تمت قراءة ملف PDF لكن لم يتم استخراج سجلات صالحة. يفضّل استخدام PDF نصي واضح أو ملف Excel.");
+
+            return;
 
           }
 
-        };
+          updateStatus(`تم تحميل ملف PDF: ${file.name} وتحويله إلى بيانات تحليلية.`, "● تم تحليل PDF");
 
-        reader.readAsText(file, "utf-8");
+          currentData = parsed;
 
-      }else if(name.endsWith(".xlsx") || name.endsWith(".xls")){
+          analyzeData(parsed, file.name);
 
-        const reader = new FileReader();
+          return;
 
-        reader.onload = e => {
+        }
 
-          try{
+        alert("هذا النوع غير مدعوم. استخدمي Excel أو CSV أو PDF.");
 
-            const workbook = XLSX.read(e.target.result, {type:"array"});
+      }catch(error){
 
-            processWorkbook(workbook, file.name);
+        console.error(error);
 
-          }catch(error){
-
-            alert("تعذر قراءة ملف Excel.");
-
-          }
-
-        };
-
-        reader.readAsArrayBuffer(file);
-
-      }else{
-
-        alert("هذا النوع غير مدعوم في هذه النسخة. استخدمي Excel أو CSV.");
+        alert("حدث خطأ أثناء قراءة الملف.");
 
       }
+
+    }
+
+    async function processPDF(file){
+
+      const arrayBuffer = await file.arrayBuffer();
+
+      const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+
+      let fullText = "";
+
+      for(let pageNum = 1; pageNum <= pdf.numPages; pageNum++){
+
+        const page = await pdf.getPage(pageNum);
+
+        const content = await page.getTextContent();
+
+        const pageText = content.items.map(item => item.str).join(" ");
+
+        fullText += "\n" + pageText;
+
+      }
+
+      return extractRecordsFromPDFText(fullText);
+
+    }
+
+    function extractRecordsFromPDFText(text){
+
+      const cleaned = text
+
+        .replace(/\u200f/g, " ")
+
+        .replace(/\u200e/g, " ")
+
+        .replace(/\s+/g, " ")
+
+        .trim();
+
+      const classMatch = cleaned.match(/فصل\s*([0-9]+)/);
+
+      const defaultClass = classMatch ? classMatch[1] : "غير محدد";
+
+      const records = [];
+
+      const pattern = /(\d{10})\s+(.+?)\s+([1-9])\s+(\d{1,3}(?:\.\d{1,2})?)\s+حاضر\s+(\d{1,3}(?:\.\d{1,2})?)\s+حاضر\s+(\d{1,3}(?:\.\d{1,2})?)/g;
+
+      let match;
+
+      while((match = pattern.exec(cleaned)) !== null){
+
+        const studentId = match[1];
+
+        const studentName = match[2].trim();
+
+        const className = match[3] || defaultClass;
+
+        const total = parseFloat(match[6]);
+
+        if(studentName && Number.isFinite(total)){
+
+          records.push({
+
+            studentName,
+
+            studentId,
+
+            className,
+
+            total
+
+          });
+
+        }
+
+      }
+
+      if(records.length) return uniqueRecords(records);
+
+      const roughPattern = /(\d{10})\s+(.+?)\s+([1-9])\s+.*?(\d{2,3}(?:\.\d{1,2})?)/g;
+
+      while((match = roughPattern.exec(cleaned)) !== null){
+
+        const studentId = match[1];
+
+        const studentName = match[2].trim();
+
+        const className = match[3] || defaultClass;
+
+        const total = parseFloat(match[4]);
+
+        if(studentName && Number.isFinite(total)){
+
+          records.push({
+
+            studentName,
+
+            studentId,
+
+            className,
+
+            total
+
+          });
+
+        }
+
+      }
+
+      return uniqueRecords(records);
+
+    }
+
+    function uniqueRecords(records){
+
+      const seen = new Set();
+
+      return records.filter(item => {
+
+        const key = `${item.studentId}|${item.studentName}|${item.className}|${item.total}`;
+
+        if(seen.has(key)) return false;
+
+        seen.add(key);
+
+        return true;
+
+      });
 
     }
 

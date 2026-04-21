@@ -1,0 +1,2659 @@
+<!DOCTYPE html>
+
+<html lang="ar" dir="rtl">
+
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>منصة التحليل الذكي لنتائج الطالبات</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+
+    :root{
+
+      --bg:#07111f;
+
+      --bg2:#0b1830;
+
+      --panel:rgba(11,24,48,.76);
+
+      --panel-2:rgba(10,20,38,.82);
+
+      --line:rgba(255,255,255,.10);
+
+      --line-2:rgba(255,255,255,.06);
+
+      --text:#f6f9ff;
+
+      --muted:#b9c6df;
+
+      --white:#ffffff;
+
+      --black:#000000;
+
+      --gray:#8ea0bf;
+
+      --blue:#57a9ff;
+
+      --green:#42d18a;
+
+      --purple:#9d7dff;
+
+      --red:#ff6b8b;
+
+      --amber:#f5c15f;
+
+      --shadow:0 18px 60px rgba(0,0,0,.35);
+
+      --radius:24px;
+
+      --radius-sm:18px;
+
+    }
+
+    *{box-sizing:border-box}
+
+    html,body{margin:0;padding:0;scroll-behavior:smooth}
+
+    body{
+
+      font-family:"Tahoma","Segoe UI","Arial",sans-serif;
+
+      color:var(--text);
+
+      background:
+
+        radial-gradient(circle at 15% 15%, rgba(87,169,255,.18), transparent 18%),
+
+        radial-gradient(circle at 85% 10%, rgba(157,125,255,.18), transparent 18%),
+
+        radial-gradient(circle at 20% 85%, rgba(66,209,138,.14), transparent 20%),
+
+        linear-gradient(180deg,#06101d 0%,#091427 50%,#08111f 100%);
+
+      min-height:100vh;
+
+      overflow-x:hidden;
+
+    }
+
+    body::before{
+
+      content:"";
+
+      position:fixed;
+
+      inset:0;
+
+      pointer-events:none;
+
+      background-image:
+
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+
+      background-size:30px 30px;
+
+      mask-image:linear-gradient(to bottom, rgba(0,0,0,.55), rgba(0,0,0,.08));
+
+    }
+
+    .floating-aura{
+
+      position:fixed;
+
+      inset:0;
+
+      pointer-events:none;
+
+      overflow:hidden;
+
+      z-index:0;
+
+    }
+
+    .floating-aura span{
+
+      position:absolute;
+
+      width:220px;
+
+      height:220px;
+
+      border-radius:50%;
+
+      filter:blur(35px);
+
+      opacity:.18;
+
+      animation:drift 16s infinite ease-in-out alternate;
+
+    }
+
+    .floating-aura span:nth-child(1){top:4%;left:3%;background:var(--blue)}
+
+    .floating-aura span:nth-child(2){top:12%;right:6%;background:var(--purple);animation-duration:20s}
+
+    .floating-aura span:nth-child(3){bottom:8%;left:9%;background:var(--green);animation-duration:22s}
+
+    .floating-aura span:nth-child(4){bottom:12%;right:10%;background:var(--blue);animation-duration:18s}
+
+    @keyframes drift{
+
+      from{transform:translateY(-10px) translateX(0) scale(1)}
+
+      to{transform:translateY(18px) translateX(12px) scale(1.08)}
+
+    }
+
+    .container{
+
+      position:relative;
+
+      z-index:1;
+
+      width:min(1380px, calc(100% - 28px));
+
+      margin:0 auto;
+
+    }
+
+    .topbar{
+
+      position:sticky;
+
+      top:0;
+
+      z-index:60;
+
+      backdrop-filter:blur(18px);
+
+      background:rgba(5,10,20,.72);
+
+      border-bottom:1px solid rgba(255,255,255,.08);
+
+    }
+
+    .topbar-inner{
+
+      display:flex;
+
+      align-items:center;
+
+      justify-content:space-between;
+
+      gap:16px;
+
+      padding:16px 0;
+
+      flex-wrap:wrap;
+
+    }
+
+    .brand{
+
+      display:flex;
+
+      align-items:center;
+
+      gap:14px;
+
+      min-width:0;
+
+    }
+
+    .logo{
+
+      width:60px;
+
+      height:60px;
+
+      border-radius:20px;
+
+      display:grid;
+
+      place-items:center;
+
+      font-size:28px;
+
+      background:
+
+        linear-gradient(135deg, rgba(87,169,255,.22), rgba(157,125,255,.18)),
+
+        rgba(255,255,255,.04);
+
+      border:1px solid rgba(255,255,255,.12);
+
+      box-shadow:var(--shadow);
+
+    }
+
+    .brand-text h1{
+
+      margin:0 0 6px;
+
+      font-size:1.32rem;
+
+      color:var(--white);
+
+      font-weight:900;
+
+      letter-spacing:.2px;
+
+    }
+
+    .brand-text p{
+
+      margin:0;
+
+      color:var(--muted);
+
+      font-size:.92rem;
+
+      line-height:1.7;
+
+    }
+
+    .mini-chips{
+
+      display:flex;
+
+      gap:10px;
+
+      flex-wrap:wrap;
+
+      justify-content:flex-end;
+
+    }
+
+    .mini-chip{
+
+      padding:10px 14px;
+
+      border-radius:999px;
+
+      background:rgba(255,255,255,.05);
+
+      border:1px solid rgba(255,255,255,.08);
+
+      color:#e9f1ff;
+
+      font-size:.88rem;
+
+      white-space:nowrap;
+
+    }
+
+    .hero{
+
+      margin:26px 0 20px;
+
+      padding:28px;
+
+      border-radius:34px;
+
+      background:
+
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015)),
+
+        linear-gradient(135deg, rgba(11,24,48,.93), rgba(7,14,29,.92));
+
+      border:1px solid rgba(255,255,255,.10);
+
+      box-shadow:var(--shadow);
+
+      position:relative;
+
+      overflow:hidden;
+
+    }
+
+    .hero::before{
+
+      content:"";
+
+      position:absolute;
+
+      inset:-30% auto auto -10%;
+
+      width:320px;
+
+      height:320px;
+
+      border-radius:50%;
+
+      background:radial-gradient(circle, rgba(87,169,255,.24), transparent 70%);
+
+      pointer-events:none;
+
+    }
+
+    .hero::after{
+
+      content:"";
+
+      position:absolute;
+
+      inset:auto -8% -35% auto;
+
+      width:360px;
+
+      height:360px;
+
+      border-radius:50%;
+
+      background:radial-gradient(circle, rgba(157,125,255,.24), transparent 70%);
+
+      pointer-events:none;
+
+    }
+
+    .hero-grid{
+
+      display:grid;
+
+      grid-template-columns:1.25fr .9fr;
+
+      gap:20px;
+
+      position:relative;
+
+      z-index:1;
+
+    }
+
+    .hero-title h2{
+
+      margin:0 0 12px;
+
+      font-size:2.05rem;
+
+      line-height:1.35;
+
+      font-weight:900;
+
+    }
+
+    .hero-title p{
+
+      margin:0;
+
+      color:#d8e3f8;
+
+      line-height:2;
+
+      font-size:1rem;
+
+      max-width:760px;
+
+    }
+
+    .hero-actions{
+
+      display:flex;
+
+      gap:12px;
+
+      margin-top:22px;
+
+      flex-wrap:wrap;
+
+    }
+
+    .btn{
+
+      border:none;
+
+      outline:none;
+
+      cursor:pointer;
+
+      transition:.2s ease;
+
+      font-family:inherit;
+
+      font-weight:900;
+
+    }
+
+    .btn:hover{transform:translateY(-1px)}
+
+    .btn:active{transform:translateY(0)}
+
+    .btn-primary{
+
+      padding:14px 22px;
+
+      border-radius:16px;
+
+      color:#fff;
+
+      background:linear-gradient(135deg, var(--blue), var(--purple));
+
+      box-shadow:0 14px 30px rgba(94,130,255,.26);
+
+    }
+
+    .btn-success{
+
+      padding:14px 22px;
+
+      border-radius:16px;
+
+      color:#fff;
+
+      background:linear-gradient(135deg, var(--green), #279d69);
+
+      box-shadow:0 14px 30px rgba(66,209,138,.22);
+
+    }
+
+    .btn-secondary{
+
+      padding:14px 18px;
+
+      border-radius:16px;
+
+      color:#eef4ff;
+
+      background:rgba(255,255,255,.06);
+
+      border:1px solid rgba(255,255,255,.10);
+
+    }
+
+    .hero-side{
+
+      display:grid;
+
+      grid-template-columns:repeat(2,minmax(0,1fr));
+
+      gap:12px;
+
+      align-content:start;
+
+    }
+
+    .hero-box{
+
+      min-height:118px;
+
+      padding:18px 16px;
+
+      border-radius:22px;
+
+      background:rgba(255,255,255,.05);
+
+      border:1px solid rgba(255,255,255,.08);
+
+    }
+
+    .hero-box .icon{
+
+      font-size:1.4rem;
+
+      margin-bottom:10px;
+
+      display:block;
+
+    }
+
+    .hero-box .t1{
+
+      font-size:.9rem;
+
+      color:var(--muted);
+
+      margin-bottom:8px;
+
+    }
+
+    .hero-box .t2{
+
+      font-size:1.18rem;
+
+      font-weight:900;
+
+      color:var(--white);
+
+      line-height:1.7;
+
+    }
+
+    .upload-panel{
+
+      margin:18px 0 10px;
+
+      padding:22px;
+
+      border-radius:28px;
+
+      background:
+
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)),
+
+        linear-gradient(135deg, rgba(9,18,35,.92), rgba(8,14,26,.95));
+
+      border:1px solid rgba(255,255,255,.08);
+
+      box-shadow:var(--shadow);
+
+    }
+
+    .upload-grid{
+
+      display:grid;
+
+      grid-template-columns:1.1fr .9fr;
+
+      gap:18px;
+
+      align-items:stretch;
+
+    }
+
+    .dropzone{
+
+      border:2px dashed rgba(255,255,255,.16);
+
+      border-radius:24px;
+
+      padding:28px 22px;
+
+      min-height:220px;
+
+      display:grid;
+
+      place-items:center;
+
+      text-align:center;
+
+      background:
+
+        radial-gradient(circle at top right, rgba(87,169,255,.12), transparent 28%),
+
+        radial-gradient(circle at bottom left, rgba(66,209,138,.10), transparent 28%),
+
+        rgba(255,255,255,.03);
+
+      transition:.2s ease;
+
+    }
+
+    .dropzone.drag{
+
+      border-color:rgba(87,169,255,.8);
+
+      background:
+
+        radial-gradient(circle at top right, rgba(87,169,255,.16), transparent 28%),
+
+        radial-gradient(circle at bottom left, rgba(157,125,255,.14), transparent 28%),
+
+        rgba(255,255,255,.04);
+
+    }
+
+    .dropzone .drop-inner{
+
+      max-width:580px;
+
+    }
+
+    .dropzone .drop-icon{
+
+      width:88px;
+
+      height:88px;
+
+      margin:0 auto 14px;
+
+      border-radius:24px;
+
+      display:grid;
+
+      place-items:center;
+
+      font-size:2rem;
+
+      background:linear-gradient(135deg, rgba(87,169,255,.18), rgba(157,125,255,.18));
+
+      border:1px solid rgba(255,255,255,.1);
+
+    }
+
+    .dropzone h3{
+
+      margin:0 0 10px;
+
+      font-size:1.35rem;
+
+      font-weight:900;
+
+    }
+
+    .dropzone p{
+
+      margin:0;
+
+      color:#d5e0f4;
+
+      line-height:2;
+
+    }
+
+    .input-wrap{
+
+      margin-top:18px;
+
+      display:flex;
+
+      justify-content:center;
+
+      gap:10px;
+
+      flex-wrap:wrap;
+
+    }
+
+    #fileInput{
+
+      display:none;
+
+    }
+
+    .upload-info{
+
+      display:grid;
+
+      gap:12px;
+
+    }
+
+    .info-card{
+
+      padding:18px;
+
+      border-radius:22px;
+
+      background:rgba(255,255,255,.04);
+
+      border:1px solid rgba(255,255,255,.08);
+
+      min-height:104px;
+
+    }
+
+    .info-card h4{
+
+      margin:0 0 10px;
+
+      font-size:1rem;
+
+      color:var(--white);
+
+    }
+
+    .info-card p{
+
+      margin:0;
+
+      color:var(--muted);
+
+      line-height:1.9;
+
+      font-size:.93rem;
+
+    }
+
+    .status-pill{
+
+      display:inline-flex;
+
+      align-items:center;
+
+      gap:8px;
+
+      margin-top:12px;
+
+      padding:10px 14px;
+
+      border-radius:999px;
+
+      background:rgba(255,255,255,.06);
+
+      border:1px solid rgba(255,255,255,.08);
+
+      color:#eef4ff;
+
+      font-size:.86rem;
+
+    }
+
+    .section{
+
+      margin:20px 0;
+
+      padding:22px;
+
+      border-radius:28px;
+
+      background:
+
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)),
+
+        linear-gradient(135deg, rgba(10,20,39,.92), rgba(8,15,30,.96));
+
+      border:1px solid rgba(255,255,255,.08);
+
+      box-shadow:var(--shadow);
+
+    }
+
+    .section-head{
+
+      display:flex;
+
+      align-items:center;
+
+      justify-content:space-between;
+
+      gap:16px;
+
+      flex-wrap:wrap;
+
+      margin-bottom:16px;
+
+    }
+
+    .section-head h3{
+
+      margin:0;
+
+      font-size:1.2rem;
+
+      font-weight:900;
+
+    }
+
+    .section-head p{
+
+      margin:0;
+
+      color:var(--muted);
+
+      font-size:.92rem;
+
+      line-height:1.8;
+
+    }
+
+    .stats-grid{
+
+      display:grid;
+
+      grid-template-columns:repeat(6,minmax(0,1fr));
+
+      gap:14px;
+
+    }
+
+    .stat-card{
+
+      padding:18px 16px;
+
+      border-radius:22px;
+
+      background:
+
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+
+      border:1px solid rgba(255,255,255,.08);
+
+      min-height:116px;
+
+      position:relative;
+
+      overflow:hidden;
+
+    }
+
+    .stat-card::before{
+
+      content:"";
+
+      position:absolute;
+
+      inset:auto auto -35px -35px;
+
+      width:100px;
+
+      height:100px;
+
+      border-radius:50%;
+
+      background:radial-gradient(circle, rgba(87,169,255,.20), transparent 70%);
+
+      pointer-events:none;
+
+    }
+
+    .stat-card:nth-child(2)::before{background:radial-gradient(circle, rgba(66,209,138,.18), transparent 70%)}
+
+    .stat-card:nth-child(3)::before{background:radial-gradient(circle, rgba(157,125,255,.18), transparent 70%)}
+
+    .stat-card:nth-child(4)::before{background:radial-gradient(circle, rgba(245,193,95,.20), transparent 70%)}
+
+    .stat-card:nth-child(5)::before{background:radial-gradient(circle, rgba(255,107,139,.18), transparent 70%)}
+
+    .stat-card:nth-child(6)::before{background:radial-gradient(circle, rgba(255,255,255,.16), transparent 70%)}
+
+    .stat-card .label{
+
+      color:var(--muted);
+
+      font-size:.87rem;
+
+      margin-bottom:10px;
+
+    }
+
+    .stat-card .value{
+
+      font-size:1.7rem;
+
+      font-weight:900;
+
+      color:var(--white);
+
+      line-height:1.2;
+
+    }
+
+    .stat-card .sub{
+
+      margin-top:8px;
+
+      color:#dce7fb;
+
+      font-size:.85rem;
+
+    }
+
+    .charts-grid{
+
+      display:grid;
+
+      grid-template-columns:1fr 1fr;
+
+      gap:18px;
+
+    }
+
+    .chart-card{
+
+      padding:18px;
+
+      border-radius:24px;
+
+      background:rgba(255,255,255,.04);
+
+      border:1px solid rgba(255,255,255,.08);
+
+      min-height:380px;
+
+    }
+
+    .chart-card h4{
+
+      margin:0 0 10px;
+
+      font-size:1rem;
+
+    }
+
+    .chart-card p{
+
+      margin:0 0 14px;
+
+      color:var(--muted);
+
+      font-size:.9rem;
+
+      line-height:1.8;
+
+    }
+
+    .tables-grid{
+
+      display:grid;
+
+      grid-template-columns:1fr 1fr;
+
+      gap:18px;
+
+    }
+
+    .table-card{
+
+      padding:18px;
+
+      border-radius:24px;
+
+      background:rgba(255,255,255,.04);
+
+      border:1px solid rgba(255,255,255,.08);
+
+      overflow:hidden;
+
+    }
+
+    .table-card h4{
+
+      margin:0 0 12px;
+
+      font-size:1rem;
+
+    }
+
+    .table-scroll{
+
+      overflow:auto;
+
+      border-radius:18px;
+
+      border:1px solid rgba(255,255,255,.06);
+
+      background:rgba(255,255,255,.02);
+
+    }
+
+    table{
+
+      width:100%;
+
+      border-collapse:collapse;
+
+      min-width:520px;
+
+    }
+
+    th,td{
+
+      padding:12px 12px;
+
+      border-bottom:1px solid rgba(255,255,255,.07);
+
+      text-align:right;
+
+      font-size:.92rem;
+
+    }
+
+    th{
+
+      background:rgba(255,255,255,.06);
+
+      color:#f7fbff;
+
+      position:sticky;
+
+      top:0;
+
+      z-index:1;
+
+    }
+
+    td{
+
+      color:#d9e3f6;
+
+    }
+
+    tr:hover td{
+
+      background:rgba(255,255,255,.03);
+
+    }
+
+    .badge{
+
+      display:inline-flex;
+
+      align-items:center;
+
+      gap:7px;
+
+      padding:8px 12px;
+
+      border-radius:999px;
+
+      font-size:.82rem;
+
+      font-weight:800;
+
+      border:1px solid rgba(255,255,255,.08);
+
+      background:rgba(255,255,255,.05);
+
+    }
+
+    .b-excellent{color:#ffffff;background:linear-gradient(135deg, rgba(66,209,138,.24), rgba(87,169,255,.18))}
+
+    .b-good{color:#ffffff;background:linear-gradient(135deg, rgba(87,169,255,.24), rgba(157,125,255,.18))}
+
+    .b-watch{color:#ffffff;background:linear-gradient(135deg, rgba(245,193,95,.26), rgba(255,107,139,.18))}
+
+    .b-risk{color:#ffffff;background:linear-gradient(135deg, rgba(255,107,139,.24), rgba(125,28,58,.22))}
+
+    .insights{
+
+      display:grid;
+
+      grid-template-columns:repeat(3,minmax(0,1fr));
+
+      gap:16px;
+
+    }
+
+    .insight{
+
+      padding:18px;
+
+      border-radius:22px;
+
+      background:rgba(255,255,255,.04);
+
+      border:1px solid rgba(255,255,255,.08);
+
+      min-height:180px;
+
+    }
+
+    .insight .icon{
+
+      width:54px;
+
+      height:54px;
+
+      border-radius:18px;
+
+      display:grid;
+
+      place-items:center;
+
+      font-size:1.35rem;
+
+      margin-bottom:12px;
+
+      background:linear-gradient(135deg, rgba(87,169,255,.16), rgba(157,125,255,.16));
+
+      border:1px solid rgba(255,255,255,.08);
+
+    }
+
+    .insight h4{
+
+      margin:0 0 10px;
+
+      font-size:1rem;
+
+    }
+
+    .insight p{
+
+      margin:0;
+
+      color:#d7e0f0;
+
+      line-height:1.9;
+
+      font-size:.92rem;
+
+    }
+
+    .report-box{
+
+      padding:22px;
+
+      border-radius:24px;
+
+      background:
+
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+
+      border:1px solid rgba(255,255,255,.08);
+
+      color:#eff5ff;
+
+      line-height:2.1;
+
+      white-space:pre-wrap;
+
+      font-size:.97rem;
+
+    }
+
+    .footer{
+
+      padding:8px 0 34px;
+
+      text-align:center;
+
+      color:#c6d2e8;
+
+      line-height:2;
+
+    }
+
+    .footer strong{color:#fff}
+
+    .hidden{display:none !important}
+
+    @media print{
+
+      .topbar,.hero-actions,.upload-panel,.footer,.no-print{display:none !important}
+
+      body{background:#fff;color:#000}
+
+      .section,.hero,.chart-card,.table-card,.insight,.stat-card,.report-box{
+
+        box-shadow:none !important;
+
+        border:1px solid #ddd !important;
+
+        background:#fff !important;
+
+        color:#000 !important;
+
+      }
+
+      th,td{color:#000}
+
+      .container{width:100%}
+
+      canvas{max-height:320px !important}
+
+    }
+
+    @media (max-width:1200px){
+
+      .stats-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+      .hero-grid,.upload-grid,.charts-grid,.tables-grid,.insights{grid-template-columns:1fr}
+
+    }
+
+    @media (max-width:760px){
+
+      .container{width:min(100% - 16px,100%)}
+
+      .hero{padding:20px 16px}
+
+      .upload-panel,.section{padding:18px 14px}
+
+      .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+
+      .hero-side{grid-template-columns:1fr}
+
+      .hero-title h2{font-size:1.5rem}
+
+      .topbar-inner{padding:12px 0}
+
+      .logo{width:52px;height:52px;font-size:24px}
+
+      .brand-text h1{font-size:1.06rem}
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="floating-aura">
+
+    <span></span><span></span><span></span><span></span>
+
+  </div>
+
+  <header class="topbar">
+
+    <div class="container topbar-inner">
+
+      <div class="brand">
+
+        <div class="logo">📊</div>
+
+        <div class="brand-text">
+
+          <h1>منصة التحليل الذكي لنتائج الطالبات</h1>
+
+          <p>لوحة قيادية احترافية لتحليل نتائج الطالبات وإنتاج مؤشرات وتقارير تنفيذية</p>
+
+        </div>
+
+      </div>
+
+      <div class="mini-chips">
+
+        <div class="mini-chip">إعداد: مهاء يوسف الشهراني</div>
+
+        <div class="mini-chip">التصميم: رسمي ذكي</div>
+
+        <div class="mini-chip">الملفات المدعومة: Excel / CSV</div>
+
+      </div>
+
+    </div>
+
+  </header>
+
+  <main class="container">
+
+    <section class="hero">
+
+      <div class="hero-grid">
+
+        <div class="hero-title">
+
+          <h2>أداة مبتكرة لتحليل نتائج الطالبات بصورة قيادية فورية</h2>
+
+          <p>
+
+            ارفعي ملف النتائج، وستحوّله المنصة مباشرة إلى مؤشرات أداء، تحليل فصول، تصنيف مستويات، قوائم المتفوقات، حالات الدعم العلاجي، ورسوم بيانية وتقرير تنفيذي جاهز للطباعة والعرض.
+
+          </p>
+
+          <div class="hero-actions no-print">
+
+            <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">رفع ملف النتائج</button>
+
+            <button class="btn btn-success" onclick="window.print()">طباعة التقرير</button>
+
+            <button class="btn btn-secondary" onclick="resetDashboard()">مسح البيانات</button>
+
+          </div>
+
+        </div>
+
+        <div class="hero-side">
+
+          <div class="hero-box">
+
+            <span class="icon">🏆</span>
+
+            <div class="t1">النتيجة</div>
+
+            <div class="t2">تحليل فوري ورسمي</div>
+
+          </div>
+
+          <div class="hero-box">
+
+            <span class="icon">🎯</span>
+
+            <div class="t1">المستهدف</div>
+
+            <div class="t2">اكتشاف القوة والضعف</div>
+
+          </div>
+
+          <div class="hero-box">
+
+            <span class="icon">📈</span>
+
+            <div class="t1">المخرجات</div>
+
+            <div class="t2">رسوم ومؤشرات ذكية</div>
+
+          </div>
+
+          <div class="hero-box">
+
+            <span class="icon">🧠</span>
+
+            <div class="t1">الدعم</div>
+
+            <div class="t2">توصيات وخطة علاجية</div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="upload-panel no-print">
+
+      <div class="upload-grid">
+
+        <div class="dropzone" id="dropzone">
+
+          <div class="drop-inner">
+
+            <div class="drop-icon">🗂️</div>
+
+            <h3>اسحبي ملف النتائج هنا أو اختاريه من الجهاز</h3>
+
+            <p>
+
+              يدعم النظام ملفات <strong>Excel</strong> و<strong>CSV</strong>.
+
+              يفضّل أن يحتوي الملف على أعمدة مثل: اسم الطالب، رقم الطالب، الفصل، الدرجة أو المجموع.
+
+            </p>
+
+            <div class="input-wrap">
+
+              <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">اختيار ملف</button>
+
+              <button class="btn btn-secondary" onclick="loadDemoData()">تجربة عرض تجريبية</button>
+
+            </div>
+
+            <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" />
+
+          </div>
+
+        </div>
+
+        <div class="upload-info">
+
+          <div class="info-card">
+
+            <h4>حالة الملف</h4>
+
+            <p id="fileStatusText">لم يتم رفع أي ملف حتى الآن.</p>
+
+            <div class="status-pill" id="fileStatusPill">● بانتظار الملف</div>
+
+          </div>
+
+          <div class="info-card">
+
+            <h4>آلية القراءة</h4>
+
+            <p>
+
+              يتم فحص أسماء الأعمدة تلقائيًا، ثم استخراج اسم الطالبة والفصل والدرجة النهائية. بعد ذلك يبدأ التحليل والرسوم والتقرير التنفيذي فورًا.
+
+            </p>
+
+          </div>
+
+          <div class="info-card">
+
+            <h4>تنبيه</h4>
+
+            <p>
+
+              إذا كان الملف يحتوي على أكثر من ورقة، ستقرأ المنصة أول ورقة فقط. ولأفضل نتيجة اجعلي الصف الأول عناوين للأعمدة.
+
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="section">
+
+      <div class="section-head">
+
+        <div>
+
+          <h3>المؤشرات الرئيسة</h3>
+
+          <p>تتغير هذه المؤشرات تلقائيًا بعد قراءة الملف.</p>
+
+        </div>
+
+      </div>
+
+      <div class="stats-grid" id="statsGrid">
+
+        <div class="stat-card">
+
+          <div class="label">عدد الطالبات</div>
+
+          <div class="value" id="statStudents">0</div>
+
+          <div class="sub">إجمالي السجلات المحللة</div>
+
+        </div>
+
+        <div class="stat-card">
+
+          <div class="label">المتوسط العام</div>
+
+          <div class="value" id="statAverage">0</div>
+
+          <div class="sub">متوسط الدرجة النهائية</div>
+
+        </div>
+
+        <div class="stat-card">
+
+          <div class="label">أعلى درجة</div>
+
+          <div class="value" id="statMax">0</div>
+
+          <div class="sub">أفضل أداء مسجل</div>
+
+        </div>
+
+        <div class="stat-card">
+
+          <div class="label">أقل درجة</div>
+
+          <div class="value" id="statMin">0</div>
+
+          <div class="sub">أدنى أداء مسجل</div>
+
+        </div>
+
+        <div class="stat-card">
+
+          <div class="label">نسبة الإتقان</div>
+
+          <div class="value" id="statMastery">0%</div>
+
+          <div class="sub">الحاصلون على 50 فأعلى</div>
+
+        </div>
+
+        <div class="stat-card">
+
+          <div class="label">الحالات العلاجية</div>
+
+          <div class="value" id="statRisk">0</div>
+
+          <div class="sub">أقل من 50 درجة</div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="section">
+
+      <div class="section-head">
+
+        <div>
+
+          <h3>الرسوم البيانية</h3>
+
+          <p>تمثيل بصري ذكي لتوزيع الأداء والفصول.</p>
+
+        </div>
+
+      </div>
+
+      <div class="charts-grid">
+
+        <div class="chart-card">
+
+          <h4>توزيع مستويات الطالبات</h4>
+
+          <p>ممتازة – جيدة – بحاجة متابعة – علاجية</p>
+
+          <canvas id="levelChart"></canvas>
+
+        </div>
+
+        <div class="chart-card">
+
+          <h4>متوسط الدرجات حسب الفصول</h4>
+
+          <p>مقارنة مباشرة بين الفصول الموجودة في الملف</p>
+
+          <canvas id="classChart"></canvas>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="section">
+
+      <div class="section-head">
+
+        <div>
+
+          <h3>التحليل التفصيلي</h3>
+
+          <p>قوائم قيادية لأعلى وأقل النتائج ومتوسطات الفصول.</p>
+
+        </div>
+
+      </div>
+
+      <div class="tables-grid">
+
+        <div class="table-card">
+
+          <h4>أعلى 10 طالبات</h4>
+
+          <div class="table-scroll">
+
+            <table>
+
+              <thead>
+
+                <tr>
+
+                  <th>#</th>
+
+                  <th>اسم الطالبة</th>
+
+                  <th>الفصل</th>
+
+                  <th>الدرجة</th>
+
+                  <th>التصنيف</th>
+
+                </tr>
+
+              </thead>
+
+              <tbody id="topStudentsBody"></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+        <div class="table-card">
+
+          <h4>الحالات التي تحتاج دعمًا</h4>
+
+          <div class="table-scroll">
+
+            <table>
+
+              <thead>
+
+                <tr>
+
+                  <th>#</th>
+
+                  <th>اسم الطالبة</th>
+
+                  <th>الفصل</th>
+
+                  <th>الدرجة</th>
+
+                  <th>التوصية</th>
+
+                </tr>
+
+              </thead>
+
+              <tbody id="riskStudentsBody"></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="tables-grid" style="margin-top:18px;">
+
+        <div class="table-card">
+
+          <h4>متوسطات الفصول</h4>
+
+          <div class="table-scroll">
+
+            <table>
+
+              <thead>
+
+                <tr>
+
+                  <th>الفصل</th>
+
+                  <th>عدد الطالبات</th>
+
+                  <th>المتوسط</th>
+
+                  <th>أعلى درجة</th>
+
+                  <th>أقل درجة</th>
+
+                </tr>
+
+              </thead>
+
+              <tbody id="classSummaryBody"></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+        <div class="table-card">
+
+          <h4>كافة السجلات</h4>
+
+          <div class="table-scroll">
+
+            <table>
+
+              <thead>
+
+                <tr>
+
+                  <th>#</th>
+
+                  <th>اسم الطالبة</th>
+
+                  <th>رقم الطالب</th>
+
+                  <th>الفصل</th>
+
+                  <th>الدرجة</th>
+
+                  <th>التصنيف</th>
+
+                </tr>
+
+              </thead>
+
+              <tbody id="allStudentsBody"></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="section">
+
+      <div class="section-head">
+
+        <div>
+
+          <h3>الاستنتاجات الذكية</h3>
+
+          <p>ملخص قيادي سريع لاتخاذ القرار.</p>
+
+        </div>
+
+      </div>
+
+      <div class="insights">
+
+        <div class="insight">
+
+          <div class="icon">📌</div>
+
+          <h4>القراءة التنفيذية</h4>
+
+          <p id="insight1">بانتظار الملف لبدء التحليل التنفيذي.</p>
+
+        </div>
+
+        <div class="insight">
+
+          <div class="icon">⚡</div>
+
+          <h4>مواضع التركيز</h4>
+
+          <p id="insight2">ستظهر هنا أبرز مواضع القوة والضعف تلقائيًا.</p>
+
+        </div>
+
+        <div class="insight">
+
+          <div class="icon">🩺</div>
+
+          <h4>الخطة العلاجية المقترحة</h4>
+
+          <p id="insight3">سيتم توليد توصية علاجية مباشرة بعد التحليل.</p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="section">
+
+      <div class="section-head">
+
+        <div>
+
+          <h3>التقرير التنفيذي الجاهز</h3>
+
+          <p>نص احترافي للطباعة أو النسخ أو العرض.</p>
+
+        </div>
+
+      </div>
+
+      <div class="report-box" id="reportBox">
+
+بانتظار تحميل ملف النتائج...
+
+      </div>
+
+    </section>
+
+    <section class="footer">
+
+      <strong>منصة التحليل الذكي لنتائج الطالبات</strong><br>
+
+      تصميم قيادي رسمي وتحليل بصري احترافي<br>
+
+      إعداد: <strong>مهاء يوسف الشهراني</strong>
+
+    </section>
+
+  </main>
+
+  <script>
+
+    let currentData = [];
+
+    let charts = {
+
+      levelChart: null,
+
+      classChart: null
+
+    };
+
+    const fileInput = document.getElementById("fileInput");
+
+    const dropzone = document.getElementById("dropzone");
+
+    const fileStatusText = document.getElementById("fileStatusText");
+
+    const fileStatusPill = document.getElementById("fileStatusPill");
+
+    const KEYWORDS = {
+
+      name: ["اسم الطالب","اسم الطالبة","الاسم","الطالبة","student name","name"],
+
+      studentId: ["رقم الطالب","رقم الطالبة","السجل المدني","الهوية","student id","id","رقم"],
+
+      className: ["الفصل","الشعبة","الصف","الفصول","class","section"],
+
+      total: ["المجموع","الدرجة النهائية","الدرجة","المجموع الكلي","مجموع","score","total","final","التحصيل","النتيجة"],
+
+      attendance: ["الحضور","المواظبة","attendance"]
+
+    };
+
+    fileInput.addEventListener("change", e => {
+
+      const file = e.target.files[0];
+
+      if(file) handleFile(file);
+
+    });
+
+    ["dragenter","dragover"].forEach(evt => {
+
+      dropzone.addEventListener(evt, e => {
+
+        e.preventDefault();
+
+        e.stopPropagation();
+
+        dropzone.classList.add("drag");
+
+      });
+
+    });
+
+    ["dragleave","drop"].forEach(evt => {
+
+      dropzone.addEventListener(evt, e => {
+
+        e.preventDefault();
+
+        e.stopPropagation();
+
+        dropzone.classList.remove("drag");
+
+      });
+
+    });
+
+    dropzone.addEventListener("drop", e => {
+
+      const file = e.dataTransfer.files[0];
+
+      if(file) handleFile(file);
+
+    });
+
+    function resetDashboard(){
+
+      currentData = [];
+
+      destroyCharts();
+
+      updateStatus("لم يتم رفع أي ملف حتى الآن.","● بانتظار الملف");
+
+      setText("statStudents","0");
+
+      setText("statAverage","0");
+
+      setText("statMax","0");
+
+      setText("statMin","0");
+
+      setText("statMastery","0%");
+
+      setText("statRisk","0");
+
+      setHTML("topStudentsBody","");
+
+      setHTML("riskStudentsBody","");
+
+      setHTML("classSummaryBody","");
+
+      setHTML("allStudentsBody","");
+
+      setText("insight1","بانتظار الملف لبدء التحليل التنفيذي.");
+
+      setText("insight2","ستظهر هنا أبرز مواضع القوة والضعف تلقائيًا.");
+
+      setText("insight3","سيتم توليد توصية علاجية مباشرة بعد التحليل.");
+
+      setText("reportBox","بانتظار تحميل ملف النتائج...");
+
+      fileInput.value = "";
+
+    }
+
+    function loadDemoData(){
+
+      const demo = [
+
+        {studentName:"أجوان", studentId:"1158786358", className:"1", total:60},
+
+        {studentName:"أسيل", studentId:"1162080574", className:"1", total:60},
+
+        {studentName:"أميرة", studentId:"2335170649", className:"1", total:53},
+
+        {studentName:"ديالا", studentId:"1162435372", className:"1", total:55},
+
+        {studentName:"أرجوان", studentId:"1160342380", className:"2", total:60},
+
+        {studentName:"الماس", studentId:"1163329525", className:"2", total:58},
+
+        {studentName:"تولين", studentId:"1161875842", className:"2", total:53},
+
+        {studentName:"روين", studentId:"1179957483", className:"2", total:60},
+
+        {studentName:"جمانة", studentId:"2320279322", className:"3", total:57},
+
+        {studentName:"جوان", studentId:"1159123304", className:"3", total:59},
+
+        {studentName:"رفيف", studentId:"1162788978", className:"3", total:56},
+
+        {studentName:"نور", studentId:"1160819429", className:"3", total:60},
+
+        {studentName:"ندى", studentId:"1163253352", className:"4", total:53},
+
+        {studentName:"يارا", studentId:"1162112930", className:"4", total:58},
+
+        {studentName:"ريما", studentId:"1160187462", className:"4", total:60},
+
+        {studentName:"وسن", studentId:"1162789414", className:"4", total:60}
+
+      ];
+
+      updateStatus("تم تحميل بيانات تجريبية داخلية للتحليل.","● تم تحميل بيانات تجريبية");
+
+      currentData = demo;
+
+      analyzeData(currentData, "بيانات تجريبية");
+
+    }
+
+    function updateStatus(text, pill){
+
+      fileStatusText.textContent = text;
+
+      fileStatusPill.textContent = pill;
+
+    }
+
+    function setText(id, value){
+
+      document.getElementById(id).textContent = value;
+
+    }
+
+    function setHTML(id, value){
+
+      document.getElementById(id).innerHTML = value;
+
+    }
+
+    function normalizeText(value){
+
+      return String(value ?? "")
+
+        .replace(/\u200f/g,"")
+
+        .replace(/\u200e/g,"")
+
+        .replace(/\s+/g," ")
+
+        .trim()
+
+        .toLowerCase();
+
+    }
+
+    function findColumn(headers, keywords){
+
+      for(const key of keywords){
+
+        const target = normalizeText(key);
+
+        const found = headers.find(h => normalizeText(h).includes(target));
+
+        if(found) return found;
+
+      }
+
+      return null;
+
+    }
+
+    function parseNumeric(value){
+
+      if(value === null || value === undefined || value === "") return null;
+
+      const cleaned = String(value).replace(/[^\d.-]/g,"");
+
+      const num = parseFloat(cleaned);
+
+      return Number.isFinite(num) ? num : null;
+
+    }
+
+    function classify(total){
+
+      if(total >= 95) return {label:"ممتازة", className:"b-excellent"};
+
+      if(total >= 75) return {label:"جيدة", className:"b-good"};
+
+      if(total >= 50) return {label:"بحاجة متابعة", className:"b-watch"};
+
+      return {label:"علاجية", className:"b-risk"};
+
+    }
+
+    function safeValue(v, fallback="—"){
+
+      if(v === null || v === undefined || v === "") return fallback;
+
+      return v;
+
+    }
+
+    function handleFile(file){
+
+      const name = file.name.toLowerCase();
+
+      if(name.endsWith(".csv")){
+
+        const reader = new FileReader();
+
+        reader.onload = e => {
+
+          try{
+
+            const workbook = XLSX.read(e.target.result, {type:"string"});
+
+            processWorkbook(workbook, file.name);
+
+          }catch(error){
+
+            alert("تعذر قراءة ملف CSV.");
+
+          }
+
+        };
+
+        reader.readAsText(file, "utf-8");
+
+      }else if(name.endsWith(".xlsx") || name.endsWith(".xls")){
+
+        const reader = new FileReader();
+
+        reader.onload = e => {
+
+          try{
+
+            const workbook = XLSX.read(e.target.result, {type:"array"});
+
+            processWorkbook(workbook, file.name);
+
+          }catch(error){
+
+            alert("تعذر قراءة ملف Excel.");
+
+          }
+
+        };
+
+        reader.readAsArrayBuffer(file);
+
+      }else{
+
+        alert("هذا النوع غير مدعوم في هذه النسخة. استخدمي Excel أو CSV.");
+
+      }
+
+    }
+
+    function processWorkbook(workbook, fileName){
+
+      const firstSheetName = workbook.SheetNames[0];
+
+      const sheet = workbook.Sheets[firstSheetName];
+
+      const rows = XLSX.utils.sheet_to_json(sheet, {defval:""});
+
+      if(!rows.length){
+
+        alert("الملف لا يحتوي على بيانات قابلة للقراءة.");
+
+        return;
+
+      }
+
+      const headers = Object.keys(rows[0]);
+
+      const nameCol = findColumn(headers, KEYWORDS.name);
+
+      const idCol = findColumn(headers, KEYWORDS.studentId);
+
+      const classCol = findColumn(headers, KEYWORDS.className);
+
+      const totalCol = findColumn(headers, KEYWORDS.total);
+
+      if(!nameCol || !totalCol){
+
+        alert("تعذر اكتشاف الأعمدة الأساسية. يجب وجود اسم الطالبة ودرجة أو مجموع.");
+
+        return;
+
+      }
+
+      const parsed = rows
+
+        .map(row => ({
+
+          studentName: safeValue(row[nameCol], "").toString().trim(),
+
+          studentId: idCol ? safeValue(row[idCol], "").toString().trim() : "",
+
+          className: classCol ? safeValue(row[classCol], "غير محدد").toString().trim() : "غير محدد",
+
+          total: parseNumeric(row[totalCol])
+
+        }))
+
+        .filter(item => item.studentName && item.total !== null);
+
+      if(!parsed.length){
+
+        alert("لم يتم العثور على سجلات صحيحة بعد التنظيف.");
+
+        return;
+
+      }
+
+      updateStatus(`تم تحميل الملف: ${fileName} بنجاح، وبدأ التحليل التلقائي.`, "● تم التحليل بنجاح");
+
+      currentData = parsed;
+
+      analyzeData(parsed, fileName);
+
+    }
+
+    function analyzeData(data, sourceName){
+
+      const totals = data.map(x => x.total);
+
+      const studentsCount = data.length;
+
+      const average = avg(totals);
+
+      const max = Math.max(...totals);
+
+      const min = Math.min(...totals);
+
+      const mastered = data.filter(x => x.total >= 50).length;
+
+      const masteryPercent = studentsCount ? ((mastered / studentsCount) * 100) : 0;
+
+      const riskCount = data.filter(x => x.total < 50).length;
+
+      setText("statStudents", studentsCount);
+
+      setText("statAverage", average.toFixed(2));
+
+      setText("statMax", max.toFixed(2));
+
+      setText("statMin", min.toFixed(2));
+
+      setText("statMastery", masteryPercent.toFixed(1) + "%");
+
+      setText("statRisk", riskCount);
+
+      renderTopStudents(data);
+
+      renderRiskStudents(data);
+
+      renderClassSummary(data);
+
+      renderAllStudents(data);
+
+      renderCharts(data);
+
+      renderInsights(data, sourceName, average, max, min, masteryPercent);
+
+      renderReport(data, sourceName, average, max, min, masteryPercent, riskCount);
+
+    }
+
+    function avg(arr){
+
+      if(!arr.length) return 0;
+
+      return arr.reduce((a,b)=>a+b,0)/arr.length;
+
+    }
+
+    function renderTopStudents(data){
+
+      const sorted = [...data].sort((a,b)=>b.total - a.total).slice(0,10);
+
+      setHTML("topStudentsBody", sorted.map((item, idx) => {
+
+        const c = classify(item.total);
+
+        return `
+
+          <tr>
+
+            <td>${idx + 1}</td>
+
+            <td>${item.studentName}</td>
+
+            <td>${safeValue(item.className)}</td>
+
+            <td>${item.total.toFixed(2)}</td>
+
+            <td><span class="badge ${c.className}">${c.label}</span></td>
+
+          </tr>
+
+        `;
+
+      }).join("") || `<tr><td colspan="5">لا توجد بيانات.</td></tr>`);
+
+    }
+
+    function renderRiskStudents(data){
+
+      const risk = [...data].filter(x => x.total < 50).sort((a,b)=>a.total - b.total);
+
+      setHTML("riskStudentsBody", risk.map((item, idx) => `
+
+        <tr>
+
+          <td>${idx + 1}</td>
+
+          <td>${item.studentName}</td>
+
+          <td>${safeValue(item.className)}</td>
+
+          <td>${item.total.toFixed(2)}</td>
+
+          <td>خطة علاجية فردية ومتابعة أسبوعية</td>
+
+        </tr>
+
+      `).join("") || `<tr><td colspan="5">لا توجد حالات علاجية في البيانات الحالية.</td></tr>`);
+
+    }
+
+    function renderClassSummary(data){
+
+      const groups = groupBy(data, "className");
+
+      const entries = Object.entries(groups)
+
+        .map(([className, items]) => ({
+
+          className,
+
+          count: items.length,
+
+          average: avg(items.map(i => i.total)),
+
+          max: Math.max(...items.map(i => i.total)),
+
+          min: Math.min(...items.map(i => i.total))
+
+        }))
+
+        .sort((a,b) => String(a.className).localeCompare(String(b.className), "ar"));
+
+      setHTML("classSummaryBody", entries.map(item => `
+
+        <tr>
+
+          <td>${safeValue(item.className)}</td>
+
+          <td>${item.count}</td>
+
+          <td>${item.average.toFixed(2)}</td>
+
+          <td>${item.max.toFixed(2)}</td>
+
+          <td>${item.min.toFixed(2)}</td>
+
+        </tr>
+
+      `).join("") || `<tr><td colspan="5">لا توجد بيانات.</td></tr>`);
+
+    }
+
+    function renderAllStudents(data){
+
+      const sorted = [...data].sort((a,b)=>b.total - a.total);
+
+      setHTML("allStudentsBody", sorted.map((item, idx) => {
+
+        const c = classify(item.total);
+
+        return `
+
+          <tr>
+
+            <td>${idx + 1}</td>
+
+            <td>${item.studentName}</td>
+
+            <td>${safeValue(item.studentId)}</td>
+
+            <td>${safeValue(item.className)}</td>
+
+            <td>${item.total.toFixed(2)}</td>
+
+            <td><span class="badge ${c.className}">${c.label}</span></td>
+
+          </tr>
+
+        `;
+
+      }).join("") || `<tr><td colspan="6">لا توجد بيانات.</td></tr>`);
+
+    }
+
+    function renderCharts(data){
+
+      destroyCharts();
+
+      const levelCounts = {
+
+        "ممتازة": data.filter(x => x.total >= 95).length,
+
+        "جيدة": data.filter(x => x.total >= 75 && x.total < 95).length,
+
+        "بحاجة متابعة": data.filter(x => x.total >= 50 && x.total < 75).length,
+
+        "علاجية": data.filter(x => x.total < 50).length
+
+      };
+
+      const classEntries = Object.entries(groupBy(data, "className"))
+
+        .map(([className, items]) => ({
+
+          className,
+
+          average: avg(items.map(i => i.total))
+
+        }))
+
+        .sort((a,b)=>String(a.className).localeCompare(String(b.className),"ar"));
+
+      const levelCtx = document.getElementById("levelChart");
+
+      const classCtx = document.getElementById("classChart");
+
+      charts.levelChart = new Chart(levelCtx, {
+
+        type: "doughnut",
+
+        data: {
+
+          labels: Object.keys(levelCounts),
+
+          datasets: [{
+
+            data: Object.values(levelCounts),
+
+            backgroundColor: [
+
+              "rgba(66,209,138,.88)",
+
+              "rgba(87,169,255,.88)",
+
+              "rgba(245,193,95,.88)",
+
+              "rgba(255,107,139,.88)"
+
+            ],
+
+            borderColor: "rgba(255,255,255,.12)",
+
+            borderWidth: 2
+
+          }]
+
+        },
+
+        options: {
+
+          responsive:true,
+
+          maintainAspectRatio:false,
+
+          plugins:{
+
+            legend:{labels:{color:"#eef5ff", font:{family:"Tahoma"}}}
+
+          }
+
+        }
+
+      });
+
+      charts.classChart = new Chart(classCtx, {
+
+        type: "bar",
+
+        data: {
+
+          labels: classEntries.map(x => "الفصل " + x.className),
+
+          datasets: [{
+
+            label: "متوسط الدرجة",
+
+            data: classEntries.map(x => x.average.toFixed(2)),
+
+            backgroundColor: [
+
+              "rgba(87,169,255,.85)",
+
+              "rgba(157,125,255,.85)",
+
+              "rgba(66,209,138,.85)",
+
+              "rgba(245,193,95,.85)",
+
+              "rgba(255,107,139,.85)",
+
+              "rgba(255,255,255,.75)"
+
+            ]
+
+          }]
+
+        },
+
+        options: {
+
+          responsive:true,
+
+          maintainAspectRatio:false,
+
+          scales:{
+
+            x:{ticks:{color:"#eef5ff"}},
+
+            y:{
+
+              beginAtZero:true,
+
+              ticks:{color:"#eef5ff"},
+
+              grid:{color:"rgba(255,255,255,.08)"}
+
+            }
+
+          },
+
+          plugins:{
+
+            legend:{labels:{color:"#eef5ff"}}
+
+          }
+
+        }
+
+      });
+
+    }
+
+    function destroyCharts(){
+
+      if(charts.levelChart){charts.levelChart.destroy(); charts.levelChart = null;}
+
+      if(charts.classChart){charts.classChart.destroy(); charts.classChart = null;}
+
+    }
+
+    function groupBy(arr, key){
+
+      return arr.reduce((acc, item) => {
+
+        const groupKey = item[key] || "غير محدد";
+
+        if(!acc[groupKey]) acc[groupKey] = [];
+
+        acc[groupKey].push(item);
+
+        return acc;
+
+      }, {});
+
+    }
+
+    function renderInsights(data, sourceName, average, max, min, masteryPercent){
+
+      const groups = Object.entries(groupBy(data, "className")).map(([className, items]) => ({
+
+        className,
+
+        average: avg(items.map(i => i.total)),
+
+        count: items.length
+
+      }));
+
+      const bestClass = [...groups].sort((a,b)=>b.average - a.average)[0];
+
+      const weakClass = [...groups].sort((a,b)=>a.average - b.average)[0];
+
+      const risk = data.filter(x => x.total < 50).length;
+
+      const nearRisk = data.filter(x => x.total >= 50 && x.total < 60).length;
+
+      setText(
+
+        "insight1",
+
+        `تم تحليل ${data.length} سجلًا من الملف "${sourceName}". المتوسط العام ${average.toFixed(2)} من 100، وأعلى درجة ${max.toFixed(2)}، وأقل درجة ${min.toFixed(2)}، ونسبة الإتقان العامة ${masteryPercent.toFixed(1)}%.`
+
+      );
+
+      setText(
+
+        "insight2",
+
+        groups.length
+
+          ? `أفضل متوسط ظهر في الفصل ${bestClass.className} بمعدل ${bestClass.average.toFixed(2)}، بينما يحتاج الفصل ${weakClass.className} إلى تركيز أعلى بمعدل ${weakClass.average.toFixed(2)}. كما أن عدد الحالات القريبة من حد الإتقان هو ${nearRisk} حالة.`
+
+          : "لا توجد بيانات كافية لتحليل الفصول."
+
+      );
+
+      setText(
+
+        "insight3",
+
+        risk > 0
+
+          ? `يوصى ببناء خطة علاجية مباشرة للحالات الأقل من 50، مع متابعة أسبوعية، وتكليفات علاجية، وتقويم قصير بعد كل معالجة، وإشراك الأسرة في متابعة التقدم. عدد الحالات العلاجية الحالية: ${risk}.`
+
+          : `لا توجد حالات رسوب في البيانات الحالية. يوصى بخطة تعزيز للمستوى المتوسط، وبرنامج إثرائي للمتفوقات للحفاظ على جودة الأداء.`
+
+      );
+
+    }
+
+    function renderReport(data, sourceName, average, max, min, masteryPercent, riskCount){
+
+      const groups = Object.entries(groupBy(data, "className")).map(([className, items]) => ({
+
+        className,
+
+        count: items.length,
+
+        avg: avg(items.map(i => i.total)),
+
+        max: Math.max(...items.map(i => i.total)),
+
+        min: Math.min(...items.map(i => i.total))
+
+      })).sort((a,b)=>String(a.className).localeCompare(String(b.className),"ar"));
+
+      const excellent = data.filter(x => x.total >= 95).length;
+
+      const good = data.filter(x => x.total >= 75 && x.total < 95).length;
+
+      const watch = data.filter(x => x.total >= 50 && x.total < 75).length;
+
+      const bestClass = groups.length ? groups.reduce((a,b)=>a.avg > b.avg ? a : b) : null;
+
+      const weakClass = groups.length ? groups.reduce((a,b)=>a.avg < b.avg ? a : b) : null;
+
+      const classLines = groups.map(g =>
+
+        `- الفصل ${g.className}: عدد الطالبات ${g.count}، المتوسط ${g.avg.toFixed(2)}، أعلى درجة ${g.max.toFixed(2)}، أقل درجة ${g.min.toFixed(2)}.`
+
+      ).join("\n");
+
+      const report = `
+
+التقرير التنفيذي لتحليل نتائج الطالبات
+
+مصدر البيانات: ${sourceName}
+
+إعداد: مهاء يوسف الشهراني
+
+أولًا: المؤشرات العامة
+
+- إجمالي عدد الطالبات المحللات: ${data.length}.
+
+- المتوسط العام للنتائج: ${average.toFixed(2)} من 100.
+
+- أعلى درجة مسجلة: ${max.toFixed(2)}.
+
+- أقل درجة مسجلة: ${min.toFixed(2)}.
+
+- نسبة الإتقان العامة: ${masteryPercent.toFixed(1)}%.
+
+- عدد الحالات العلاجية الأقل من 50: ${riskCount}.
+
+ثانيًا: توزيع مستويات الأداء
+
+- ممتازة: ${excellent}.
+
+- جيدة: ${good}.
+
+- بحاجة متابعة: ${watch}.
+
+- علاجية: ${riskCount}.
+
+ثالثًا: قراءة الفصول
+
+${classLines || "- لا توجد بيانات فصول كافية."}
+
+رابعًا: الاستنتاج التنفيذي
+
+${bestClass ? `- أفضل فصل من حيث المتوسط: الفصل ${bestClass.className} بمتوسط ${bestClass.avg.toFixed(2)}.` : "- لم يتم تحديد أفضل فصل."}
+
+${weakClass ? `- الفصل الأكثر احتياجًا للدعم: الفصل ${weakClass.className} بمتوسط ${weakClass.avg.toFixed(2)}.` : "- لم يتم تحديد فصل يحتاج دعمًا."}
+
+- تظهر البيانات مستوى أداء ${masteryPercent >= 90 ? "مرتفعًا جدًا" : masteryPercent >= 75 ? "جيدًا" : masteryPercent >= 60 ? "متوسطًا" : "منخفضًا"} على مستوى العينة الحالية.
+
+خامسًا: التوصيات
+
+- الاستمرار في دعم الطالبات المتفوقات بمهام إثرائية نوعية.
+
+- تخصيص متابعة مركزة للفئة التي تقع بين 50 و74 لرفعها إلى مستوى أعلى.
+
+- تنفيذ خطة علاجية فردية للحالات الأقل من 50 مع مؤشرات متابعة زمنية واضحة.
+
+- تحليل أسباب التفاوت بين الفصول، وربط النتائج باستراتيجيات التدريس والتقويم.
+
+- استخدام النتائج في بناء قرارات تحسين الأداء الأكاديمي ورفع نواتج التعلم.
+
+خلاصة:
+
+تعكس هذه القراءة صورة رقمية واضحة عن مستوى التحصيل الحالي، وتمنح الإدارة والمعلمة أساسًا مباشرًا لاتخاذ القرار، ومتابعة التحسن، وتوجيه الجهود نحو الفئات الأكثر احتياجًا.
+
+      `.trim();
+
+      setText("reportBox", report);
+
+    }
+
+  </script>
+
+</body>
+
+</html>

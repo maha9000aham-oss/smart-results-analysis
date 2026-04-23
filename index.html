@@ -1436,7 +1436,7 @@
 
             </p>
 
-            <input id="fileInput" type="file" accept=".xlsx,.xls,.csv,.pdf" />
+            <input id="fileInput" type="file" accept=".xlsx,.xls,.csv,.pdf" onchange="if(this.files && this.files[0]) handleFile(this.files[0])" />
 
             <div class="input-wrap">
 

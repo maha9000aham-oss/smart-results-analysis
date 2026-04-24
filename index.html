@@ -2327,41 +2327,6 @@ total: ["المجموع"]
 
 }
 
-      if(records.length) return uniqueRecords(records);
-
-      const roughPattern = /(\d{10})\s+(.+?)\s+([1-9])\s+.*?(\d{2,3}(?:\.\d{1,2})?)/g;
-
-      while((match = roughPattern.exec(cleaned)) !== null){
-
-        const studentId = match[1];
-
-        const studentName = match[2].trim();
-
-        const className = match[3] || defaultClass;
-
-        const total = parseFloat(match[4]);
-
-        if(studentName && Number.isFinite(total)){
-
-          records.push({
-
-            studentName,
-
-            studentId,
-
-            className,
-
-            total
-
-          });
-
-        }
-
-      }
-
-      return uniqueRecords(records);
-
-    }
 
     function uniqueRecords(records){
 

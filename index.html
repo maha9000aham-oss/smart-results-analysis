@@ -1955,16 +1955,22 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs
 
     const KEYWORDS = {
 
-      name: ["اسم الطالب","اسم الطالبة","الاسم","الطالبة","student name","name"],
+      name: ["اسم الطالبة","الطالبة","الاسم"],
 
-      studentId: ["رقم الطالب","رقم الطالبة","السجل المدني","الهوية","student id","id","رقم"],
+studentId: ["الرقم التسلسلي","#","رقم"],
 
-      className: ["الفصل","الشعبة","الصف","الفصول","class","section"],
+className: ["الفصل","الصف","الشعبة"],
 
-      total: ["المجموع","الدرجة النهائية","الدرجة","المجموع الكلي","مجموع","score","total","final","التحصيل","النتيجة"],
+quiz: ["درجة المهام","المهام"],
 
-      attendance: ["الحضور","المواظبة","attendance"]
+mid: ["درجة الاختبار الفتري","الاختبار الفتري"],
 
+finalExam: ["درجة الاختبار النهائي","الاختبار النهائي"],
+
+total: ["المجموع","الدرجة النهائية","المجموع الكلي"],
+
+average: ["المعدل","المعدل النهائي"]
+      
     };
 
     fileInput.addEventListener("change", e => {

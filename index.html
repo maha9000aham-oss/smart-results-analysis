@@ -2342,11 +2342,45 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs
 
       if(!nameCol || !totalCol){
 
-        alert("تعذر اكتشاف الأعمدة الأساسية. يجب وجود اسم الطالبة ودرجة أو مجموع.");
+  const guessed = rows.map(row => {
 
-        return;
+    const values = Object.values(row);
 
-      }
+    const nameValue = values.find(v => typeof v === "string" && v.trim().length >= 2 && isNaN(Number(v)));
+
+    const scoreValue = values.find(v => parseNumeric(v) !== null);
+
+    return {
+
+      studentName: nameValue ? String(nameValue).trim() : "",
+
+      studentId: "",
+
+      className: "غير محدد",
+
+      total: parseNumeric(scoreValue)
+
+    };
+
+  }).filter(item => item.studentName && item.total !== null);
+
+  if(!guessed.length){
+
+    alert("لم يتم العثور على أسماء ودرجات داخل الملف.");
+
+    return;
+
+  }
+
+  updateStatus(`تم تحميل الملف: ${fileName} بطريقة القراءة الذكية.`, "● تم التحليل بنجاح");
+
+  currentData = guessed;
+
+  analyzeData(guessed, fileName);
+
+  return;
+
+}
 
       const parsed = rows
 

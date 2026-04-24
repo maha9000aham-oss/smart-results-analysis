@@ -2297,23 +2297,9 @@ total: ["المجموع"]
 }
     async function processPDF(file){
 
-  const buffer = await new Promise((resolve, reject) => {
+  const buffer = await file.arrayBuffer();
 
-    const reader = new FileReader();
-
-    reader.onload = () => resolve(reader.result);
-
-    reader.onerror = () => reject(new Error("PDF read failed"));
-
-    reader.readAsArrayBuffer(file);
-
-  });
-
-  const pdf = await pdfjsLib.getDocument({
-
-    data: new Uint8Array(buffer)
-
-  }).promise;
+  const pdf = await pdfjsLib.getDocument({data:new Uint8Array(buffer)}).promise;
 
   let fullText = "";
 
@@ -2329,59 +2315,17 @@ total: ["المجموع"]
 
   }
 
+  if(!fullText.trim() || fullText.trim().length < 80){
+
+    alert("هذا PDF مصور أو غير قابل للقراءة. استخدمي Excel أو CSV.");
+
+    return [];
+
+  }
+
   return extractRecordsFromPDFText(fullText);
 
 }
-
-    function extractRecordsFromPDFText(text){
-
-      const cleaned = text
-
-        .replace(/\u200f/g, " ")
-
-        .replace(/\u200e/g, " ")
-
-        .replace(/\s+/g, " ")
-
-        .trim();
-
-      const classMatch = cleaned.match(/فصل\s*([0-9]+)/);
-
-      const defaultClass = classMatch ? classMatch[1] : "غير محدد";
-
-      const records = [];
-
-      const pattern = /(\d{10})\s+(.+?)\s+([1-9])\s+(\d{1,3}(?:\.\d{1,2})?)\s+حاضر\s+(\d{1,3}(?:\.\d{1,2})?)\s+حاضر\s+(\d{1,3}(?:\.\d{1,2})?)/g;
-
-      let match;
-
-      while((match = pattern.exec(cleaned)) !== null){
-
-        const studentId = match[1];
-
-        const studentName = match[2].trim();
-
-        const className = match[3] || defaultClass;
-
-        const total = parseFloat(match[6]);
-
-        if(studentName && Number.isFinite(total)){
-
-          records.push({
-
-            studentName,
-
-            studentId,
-
-            className,
-
-            total
-
-          });
-
-        }
-
-      }
 
       if(records.length) return uniqueRecords(records);
 

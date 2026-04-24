@@ -1440,8 +1440,7 @@
 
             <div class="input-wrap">
 
-              <button class="btn btn-primary" onclick="if(document.getElementById('fileInput').files && document.getElementById('fileInput').files[0]){ handleFile(document.getElementById('fileInput').files[0]); }else{ alert('اختاري الملف أولاً'); }">تحليل الملف</button>
-
+<button class="btn btn-primary" onclick="const f=document.getElementById('fileInput').files[0]; if(!f){alert('اختاري الملف أولاً');}else{alert('بدأ تحليل الملف: '+f.name); handleFile(f);}">تحليل الملف</button>
             </div>
 
           </div>

@@ -2145,7 +2145,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs
 
       const parsed = await processPDF(file);
 
-      if(parsed.length){
+      if(parsed && parsed.length >= 0){
 
         currentData = parsed;
 

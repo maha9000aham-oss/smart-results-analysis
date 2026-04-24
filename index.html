@@ -2107,100 +2107,71 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs
 
     }
 
-    async function handleFile(file){
+  async function handleFile(file){
 
-      const name = file.name.toLowerCase();
-      const cleanName = name.replace(/\.\d+$/,"");
+  try{
 
-      try{
+    const rawName = file.name.toLowerCase();
 
-        if(cleanName.endsWith(".csv")){
+    const cleanName = rawName.replace(/\.\d+$/,"");
 
-          const reader = new FileReader();
+    updateStatus("جارٍ قراءة الملف: " + file.name,"● تتم المعالجة");
 
-          reader.onload = e => {
+    if(cleanName.endsWith(".xlsx") || cleanName.endsWith(".xls")){
 
-            try{
+      const buffer = await file.arrayBuffer();
 
-              const workbook = XLSX.read(e.target.result, {type:"string"});
+      const workbook = XLSX.read(buffer,{type:"array"});
 
-              processWorkbook(workbook, file.name);
+      processWorkbook(workbook,file.name);
 
-            }catch(error){
+      return;
 
-              alert("تعذر قراءة ملف CSV.");
+    }
 
-            }
+    if(cleanName.endsWith(".csv")){
 
-          };
+      const text = await file.text();
 
-          reader.readAsText(file, "utf-8");
+      const workbook = XLSX.read(text,{type:"string"});
 
-          return;
+      processWorkbook(workbook,file.name);
 
-        }
+      return;
 
-        if(cleanName.endsWith(".xlsx") || cleanName.endsWith(".xls")){
+    }
 
-          const reader = new FileReader();
+    if(cleanName.endsWith(".pdf")){
 
-          reader.onload = e => {
+      const parsed = await processPDF(file);
 
-            try{
+      if(parsed.length){
 
-              const workbook = XLSX.read(e.target.result, {type:"array"});
+        currentData = parsed;
 
-              processWorkbook(workbook, file.name);
+        analyzeData(parsed,file.name);
 
-            }catch(error){
+      }else{
 
-              alert("تعذر قراءة ملف Excel.");
-
-            }
-
-          };
-
-          reader.readAsArrayBuffer(file);
-
-          return;
-
-        }
-
-        if(cleanName.endsWith(".pdf")){
-
-          updateStatus(`جارٍ قراءة ملف PDF: ${file.name}`,"● تتم معالجة PDF");
-
-          const parsed = await processPDF(file);
-
-          if(!parsed.length){
-
-            alert("تمت قراءة ملف PDF لكن لم يتم استخراج سجلات صالحة. يفضّل استخدام PDF نصي واضح أو ملف Excel.");
-
-            return;
-
-          }
-
-          updateStatus(`تم تحميل ملف PDF: ${file.name} وتحويله إلى بيانات تحليلية.`, "● تم تحليل PDF");
-
-          currentData = parsed;
-
-          analyzeData(parsed, file.name);
-
-          return;
-
-        }
-
-        alert("هذا النوع غير مدعوم. استخدمي Excel أو CSV أو PDF.");
-
-      }catch(error){
-
-        console.error(error);
-
-        alert("حدث خطأ أثناء قراءة الملف.");
+        alert("تعذر استخراج بيانات من PDF");
 
       }
 
+      return;
 
+    }
+
+    alert("نوع الملف غير مدعوم");
+
+  }catch(e){
+
+    console.error(e);
+
+    alert("حدث خطأ أثناء قراءة الملف");
+
+  }
+
+}
     async function processPDF(file){
 
   const buffer = await new Promise((resolve, reject) => {

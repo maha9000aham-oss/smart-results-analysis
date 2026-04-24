@@ -3049,8 +3049,15 @@ ${weakClass ? `- الفصل الأكثر احتياجًا للدعم: الفصل
       setText("reportBox", report);
 
     }
+document.getElementById("dateMode").onchange=function(){
 
-  </script>
+document.getElementById("dateValue").type=this.value==="miladi"?"date":"text";
+
+document.getElementById("dateValue").value=this.value==="miladi"?"2026-04-24":"1447/10/06";
+
+};
+
+</script>
 
 </body>
 

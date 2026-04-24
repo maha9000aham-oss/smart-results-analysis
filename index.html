@@ -2111,10 +2111,11 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs
     async function handleFile(file){
 
       const name = file.name.toLowerCase();
+      const cleanName = name.replace(/\.\d+$/,"");
 
       try{
 
-        if(name.endsWith(".csv")){
+        if(cleanName.endsWith(".csv")){
 
           const reader = new FileReader();
 
@@ -2140,7 +2141,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs
 
         }
 
-        if(name.endsWith(".xlsx") || name.endsWith(".xls")){
+        if(cleanName.endsWith(".xlsx") || cleanName.endsWith(".xls")){
 
           const reader = new FileReader();
 
@@ -2166,7 +2167,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs
 
         }
 
-        if(name.endsWith(".pdf")){
+        if(cleanName.endsWith(".pdf")){
 
           updateStatus(`جارٍ قراءة ملف PDF: ${file.name}`,"● تتم معالجة PDF");
 

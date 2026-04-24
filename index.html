@@ -1440,7 +1440,7 @@
 
             <div class="input-wrap">
 
-              <button class="btn btn-secondary" onclick="loadDemoData()">تجربة عرض تجريبية</button>
+              <button class="btn btn-primary" onclick="if(document.getElementById('fileInput').files && document.getElementById('fileInput').files[0]){ handleFile(document.getElementById('fileInput').files[0]); }else{ alert('اختاري الملف أولاً'); }">تحليل الملف</button>
 
             </div>
 

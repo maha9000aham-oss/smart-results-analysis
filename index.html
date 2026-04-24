@@ -2375,47 +2375,6 @@ attendance:["الحضور"]
 
       const totalCol = findColumn(headers, KEYWORDS.total);
 
-      if(!nameCol || !totalCol){
-
-  const guessed = rows.map(row => {
-
-    const values = Object.values(row);
-
-    const nameValue = values.find(v => typeof v === "string" && v.trim().length >= 2 && isNaN(Number(v)));
-
-    const scoreValue = values.find(v => parseNumeric(v) !== null);
-
-    return {
-
-      studentName: nameValue ? String(nameValue).trim() : "",
-
-      studentId: "",
-
-      className: "غير محدد",
-
-      total: parseNumeric(scoreValue)
-
-    };
-
-  }).filter(item => item.studentName && item.total !== null);
-
-  if(!guessed.length){
-
-    alert("لم يتم العثور على أسماء ودرجات داخل الملف.");
-
-    return;
-
-  }
-
-  updateStatus(`تم تحميل الملف: ${fileName} بطريقة القراءة الذكية.`, "● تم التحليل بنجاح");
-
-  currentData = guessed;
-
-  analyzeData(guessed, fileName);
-
-  return;
-
-}
 
       const parsed = rows
 

@@ -1173,6 +1173,10 @@ function resetDashboard(){
 
 
 function getAnalysisScore(item){
+
+  return item.written20 ?? item.total ?? 0;
+
+}
   if(item && Number.isFinite(item.written20)) return Number(item.written20);
   if(item && Number.isFinite(item.quiz)) return Number(item.quiz);
   if(item && Number.isFinite(item.total)) return Number(item.total);

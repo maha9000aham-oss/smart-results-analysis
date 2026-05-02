@@ -702,13 +702,39 @@ async function handleFile(file){
     const name=file.name||"";
     const lower=name.toLowerCase();
     updateStatus("جارٍ قراءة الملف: "+name,"● تتم المعالجة");
+if(lower.endsWith(".pdf")){
 
-    if(lower.endsWith(".xlsx")||lower.endsWith(".xls")){
-      const buffer=await file.arrayBuffer();
-      const workbook=XLSX.read(buffer,{type:"array",cellDates:false,raw:false});
-      processWorkbook(workbook,name);
-      return;
-    }
+  const rows = await pdfToCSV(file);
+
+  if(!rows.length){
+
+    alert("لم يتم استخراج بيانات من الملف");
+
+    return;
+
+  }
+
+  const data = rows.map((r,i)=>({
+
+    studentName: "طالبة " + (i+1),
+
+    className: "غير محدد",
+
+    written20: Number(r[0]),
+
+    performance40: Number(r[1]),
+
+    finalExam: Number(r[2]),
+
+    total: Number(r[3])
+
+  }));
+
+  processData(data);
+
+  return;
+
+}
 
     if(lower.endsWith(".csv")){
       const text=await readTextFile(file);

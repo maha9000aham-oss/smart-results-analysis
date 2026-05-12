@@ -1877,23 +1877,51 @@ function downloadImage(){
 
   const report=document.getElementById("reportArea");
 
+  if(!report){
+
+    alert("لم يتم العثور على التقرير.");
+
+    return;
+
+  }
+
+  if(typeof html2canvas==="undefined"){
+
+    alert("مكتبة تحميل الصورة لم تعمل. تأكدي من اتصال الإنترنت ثم حدثي الصفحة.");
+
+    return;
+
+  }
+
   html2canvas(report,{
 
     scale:2,
 
     useCORS:true,
 
+    allowTaint:true,
+
     backgroundColor:"#ffffff"
 
   }).then(canvas=>{
 
-    const link=document.createElement("a");
+    const imageURL=canvas.toDataURL("image/png");
 
-    link.download="smart-results-report.png";
+    const win=window.open();
 
-    link.href=canvas.toDataURL("image/png");
+    if(win){
 
-    link.click();
+      win.document.write('<img src="'+imageURL+'" style="width:100%;height:auto;">');
+
+    }else{
+
+      alert("افتحي السماح بالنوافذ المنبثقة ثم جربي مرة أخرى.");
+
+    }
+
+  }).catch(()=>{
+
+    alert("تعذر إنشاء الصورة.");
 
   });
 

@@ -1873,7 +1873,31 @@ function refreshExecutiveReport(){
     console.warn('refreshExecutiveReport error',e);
   }
 }
+function downloadImage(){
 
+  const report=document.getElementById("reportArea");
+
+  html2canvas(report,{
+
+    scale:2,
+
+    useCORS:true,
+
+    backgroundColor:"#ffffff"
+
+  }).then(canvas=>{
+
+    const link=document.createElement("a");
+
+    link.download="smart-results-report.png";
+
+    link.href=canvas.toDataURL("image/png");
+
+    link.click();
+
+  });
+
+}
 </script>
 </body>
 </html>

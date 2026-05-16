@@ -1755,7 +1755,7 @@ function analyze(){
   let best='-', stability='-';
   if(classes.length){let maxAvg=Math.max(...classAvg), minAvg=Math.min(...classAvg);best=classes[classAvg.indexOf(maxAvg)];let gap=(maxAvg-minAvg)/max*100;stability=gap<=5?'مرتفع':gap<=12?'جيد':'متفاوت'}
   $('kTotal').textContent=total;$('kAvg').textContent=pct(avg);$('kAvgSub').textContent='من '+max;$('kRate').textContent=pct(rate)+'%';$('kExcellent').textContent=pct(excellentPct)+'%';$('kStability').textContent=stability;$('kBestClass').textContent='الفصل الأعلى: '+best;
-  $('rkTotal').textContent=total;$('rkAvg').textContent=pct(avg);$('rkRate').textContent=pct(rate)+'%';$('rkExcellent').textContent=pct(excellentPct)+'%';$('rkQuality').textContent=rate>=90?'ممتازة':rate>=80?'قوية':rate>=70?'جيدة':'تحتاج دعم';
+  $('rkRate').textContent=pct(rate)+'% — '+generateSmartGuidance(avg,rate);
   $('lExcellent').textContent=counts['ممتاز'];$('lVeryGood').textContent=counts['جيد جدًا'];$('lGood').textContent=counts['جيد'];$('lAcceptable').textContent=counts['مقبول']+counts['يحتاج دعم'];
   $('pExcellent').textContent=(total?pct(counts['ممتاز']/total*100):0)+'%';$('pVeryGood').textContent=(total?pct(counts['جيد جدًا']/total*100):0)+'%';$('pGood').textContent=(total?pct(counts['جيد']/total*100):0)+'%';$('pAcceptable').textContent=(total?pct((counts['مقبول']+counts['يحتاج دعم'])/total*100):0)+'%';
   buildText({total,rate,avg,max,excellentPct,stability,best,counts});

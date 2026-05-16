@@ -1939,37 +1939,6 @@ function prepareChartsForPrint(){
   });
 }
 
-window.addEventListener("beforeprint",prepareChartsForPrint);
-window.addEventListener("afterprint",prepareChartsForPrint);
-window.addEventListener("beforeprint",()=>{
-
-  const titles=document.querySelectorAll(".class-page-title");
-
-  titles.forEach(title=>{
-
-    const wrapper=document.createElement("div");
-
-    wrapper.className="class-page-break";
-
-    title.parentNode.insertBefore(wrapper,title);
-
-    wrapper.appendChild(title);
-
-    let next=wrapper.nextSibling;
-
-    while(next && !next.classList?.contains("class-page-title")){
-
-      const current=next;
-
-      next=next.nextSibling;
-
-      wrapper.appendChild(current);
-
-    }
-
-  });
-
-});
 </script>
 </body>
 </html>

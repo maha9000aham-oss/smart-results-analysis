@@ -1837,7 +1837,7 @@ function downloadImage(){
 
   if(typeof html2canvas==="undefined"){
 
-    alert("مكتبة تحميل الصورة لم تعمل. تأكدي من اتصال الإنترنت ثم حدثي الصفحة.");
+    alert("مكتبة حفظ الصورة غير محملة. حدّثي الصفحة وتحققي من اتصال الإنترنت.");
 
     return;
 
@@ -1845,35 +1845,61 @@ function downloadImage(){
 
   html2canvas(report,{
 
-    scale:2,
+    scale:1,
 
     useCORS:true,
 
     allowTaint:true,
 
-    backgroundColor:"#ffffff"
+    backgroundColor:"#ffffff",
+
+    scrollX:0,
+
+    scrollY:0,
+
+    windowWidth:report.scrollWidth,
+
+    windowHeight:report.scrollHeight
 
   }).then(canvas=>{
 
-    const imageURL=canvas.toDataURL("image/png");
+    canvas.toBlob(function(blob){
 
-    const win=window.open();
+      if(!blob){
 
-    if(win){
+        alert("تعذر إنشاء الصورة.");
 
-      win.document.write('<img src="'+imageURL+'" style="width:100%;height:auto;">');
+        return;
 
-    }else{
+      }
 
-      alert("افتحي السماح بالنوافذ المنبثقة ثم جربي مرة أخرى.");
+      const url=URL.createObjectURL(blob);
 
-    }
+      const a=document.createElement("a");
 
-  }).catch(()=>{
+      a.href=url;
+
+      a.download="تقرير-تحليل-نتائج-الطالبات.png";
+
+      document.body.appendChild(a);
+
+      a.click();
+
+      document.body.removeChild(a);
+
+      setTimeout(()=>URL.revokeObjectURL(url),2000);
+
+    },"image/png");
+
+  }).catch(function(){
 
     alert("تعذر إنشاء الصورة.");
 
   });
+
+}
+
+      alert("افتحي السماح بالنوافذ 
 
 }
 </script>
